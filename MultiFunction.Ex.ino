@@ -1,4 +1,5 @@
 #include "MultiFuncShield.h"
+#include <SoftwareSerial.h>
 
 #define TRIG_PIN 5
 #define ECHO_PIN 6
@@ -47,7 +48,7 @@ void setup(){
   //MFS is a declared instance of MultiFuncShield in MultiFuncShield.h
   MFS.initialize(&t1); //Enable timer interrupt with TimerOne's configuration
 
-  MFS.initLM35(SMOOTHING_NONE);
+  MFS.initLM35(SMOOTHING_MODERATE);
 }
 
 void loop(){

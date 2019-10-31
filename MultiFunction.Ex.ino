@@ -49,7 +49,7 @@ byte minutes = 0;
 
 byte beepCount = 1;
 
-char txtBuffer[5];
+char txtBuffer[5]; //Buffer of 4 characters (plus 'null character' or '\0' at the end, for the display) 
 
 TimerOne t1;
 
@@ -152,6 +152,7 @@ void loop(){
             tenths = 0;
             seconds = 0;
             minutes = 0;
+            //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
             sprintf(txtBuffer, "%04d", minutes*100 + seconds);
             MFS.write(txtBuffer);
             countDownMode = COUNTING_STOPPED; //After finishing resetting all values, transition to the stop state
@@ -185,6 +186,7 @@ void loop(){
                    // timer has reached 0, transition to the count beep state
                    countDownMode = COUNT_BEEP;
                  }
+                 //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
                  sprintf(txtBuffer, "%04d", minutes*100 + seconds);
                  MFS.write(txtBuffer);
                }
@@ -222,6 +224,7 @@ void loop(){
               if(seconds >= 60){
                 seconds = 0;
               }
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }
@@ -260,6 +263,7 @@ void loop(){
               if(seconds >= 60){
                 seconds = 0;
               }
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }
@@ -287,6 +291,7 @@ void loop(){
               //countDownMode = DOWN_S;
               if(seconds > 0)
                 seconds = seconds - 1;
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }
@@ -324,6 +329,7 @@ void loop(){
               MFS.blinkDisplay(DIGIT_3, ON);
               if(seconds >= 10)
                 seconds = seconds - 10;
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }
@@ -353,6 +359,7 @@ void loop(){
               if(minutes >= 60){
                 minutes = 0;
               }
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }
@@ -392,6 +399,7 @@ void loop(){
               if(minutes >= 60){
                 minutes = 0;
               }
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }
@@ -419,6 +427,7 @@ void loop(){
               MFS.blinkDisplay(DIGIT_2, ON);
               if(minutes > 0)
                 minutes = minutes - 1;
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }
@@ -454,6 +463,7 @@ void loop(){
               MFS.blinkDisplay(DIGIT_1, ON);
               if(minutes >= 10)
                 minutes = minutes - 10;
+              //Put the set time to txtBuffer with leading zeros and in total of 4 digits.
               sprintf(txtBuffer, "%04d", minutes*100 + seconds);
               MFS.write(txtBuffer);
             }

@@ -210,8 +210,6 @@ float MultiFuncShield::getDS18B20Data(bool fahrenheit)
     ds18b20Data [ds18b20DataIndex] = ds18b20->getTempFByIndex(0);
   else
     ds18b20Data [ds18b20DataIndex] = ds18b20->getTempCByIndex(0);
-
-  Serial.println(ds18b20Data [ds18b20DataIndex]);
   
   if (ds18b20SmoothingLevel == SMOOTHING_NONE)
   {

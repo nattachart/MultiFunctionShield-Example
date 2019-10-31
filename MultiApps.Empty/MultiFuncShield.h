@@ -1,7 +1,15 @@
-#include <TimerOne.h>
+/*
+ * Multi-function shield library by Kashif Baig
+ * Updated to add DS18B20 support by Nattachart Tamkittikhun
+ * 1 Nov 2019
+ */
 
 #ifndef MultiFuncShield_h_
 #define MultiFuncShield_h_
+
+#include <TimerOne.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #include "Arduino.h"
 
@@ -21,6 +29,7 @@
 #define CLK_PIN       7
 #define DATA_PIN      8
 #define LM35_PIN      A4
+#define DS18B20_PIN   A4
 
 #define DIGIT_1  1
 #define DIGIT_2  2
@@ -156,9 +165,17 @@ class MultiFuncShield
 
     // Gets the temperature reading in 1 tenths of a centigrade.
     int getLM35Data();
+
+    // Initializes temperature reading feature. Needs DS18B20 sensor. Must remove jumper J1 from shield.
+    void initDS18B20(byte level = SMOOTHING_MODERATE);
+
+    // Gets the temperature in centigrades or Fahrenheit. Must connect J1 on the shield.
+    float getDS18B20Data(bool fahrenheit = false);
     
   private:
     TimerOne *timer1;
+    OneWire *oneWire;
+    DallasTemperature *ds18b20;
     volatile byte timerReadInProgress = 0;
     volatile byte timerWriteInProgress = 0;
     
@@ -212,6 +229,7 @@ class MultiFuncShield
     
     byte sonarSmoothingLevel = SMOOTHING_MODERATE;
     byte lm35SmoothingLevel = SMOOTHING_MODERATE;
+    byte ds18b20SmoothingLevel = SMOOTHING_MODERATE;
 };
 
 extern MultiFuncShield MFS;
@@ -223,4 +241,3 @@ extern int MedianOf5(int s0, int s1, int s2, int s3, int s4);
 extern int MedianOf9(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7, int s8);
 
 #endif
-

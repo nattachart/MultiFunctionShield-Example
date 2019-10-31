@@ -1,3 +1,20 @@
+/*
+ * An example of Multi-Function shield 
+ * with 3 switchable applications: 
+ * Temperature, Beeping, and Countdown
+ * 
+ * created by
+ * Nattachart Tamkittikhun
+ * 1 Nov 2019
+ */
+
+/*
+ * Note: 
+ * If using LM35, remove jumper J1.
+ * If using DS18B20, connect jumper J1.
+ */
+#define _USE_DS18B20 //Comment this out if using LM35
+
 #include "MultiFuncShield.h"
 #include <SoftwareSerial.h>
 
@@ -60,7 +77,11 @@ void setup(){
   //MFS is a declared instance of MultiFuncShield in MultiFuncShield.h
   MFS.initialize(&t1); //Enable timer interrupt with TimerOne's configuration
 
+  #ifdef _USE_DS18B20
+  MFS.initDS18B20(SMOOTHING_MODERATE);
+  #else
   MFS.initLM35(SMOOTHING_MODERATE);
+  #endif
 }
 
 void loop(){
@@ -73,8 +94,13 @@ void loop(){
         beepMode = INCREASING; //Initial state of the beep application
       }
       else{
+        #ifdef _USE_DS18B20
+        float tempCentigrade = MFS.getDS18B20Data();
+        MFS.write(tempCentigrade, 1);  // display temp to 1 decimal place.
+        #else
         int tempCentigrade = MFS.getLM35Data(); // get centigrade in 1/10 of degree.
         MFS.write((float)tempCentigrade / 10, 1);  // display temp to 1 decimal place.
+        #endif
       }
   }
 

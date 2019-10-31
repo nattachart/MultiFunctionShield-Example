@@ -1,3 +1,5 @@
+#define _USE_DS18B20 //Comment this out if using LM35
+
 #include "MultiFuncShield.h"
 #include <SoftwareSerial.h>
 
@@ -60,7 +62,11 @@ void setup(){
   //MFS is a declared instance of MultiFuncShield in MultiFuncShield.h
   MFS.initialize(&t1); //Enable timer interrupt with TimerOne's configuration
 
+  #ifdef _USE_DS18B20
+  MFS.initDS18B20(SMOOTHING_MODERATE);
+  #else
   MFS.initLM35(SMOOTHING_MODERATE);
+  #endif
 }
 
 void loop(){

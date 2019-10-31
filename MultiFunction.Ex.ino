@@ -60,7 +60,7 @@ void setup(){
   //MFS is a declared instance of MultiFuncShield in MultiFuncShield.h
   MFS.initialize(&t1); //Enable timer interrupt with TimerOne's configuration
 
-  MFS.initLM35(SMOOTHING_MODERATE);
+  MFS.initDS18B20(SMOOTHING_MODERATE);
 }
 
 void loop(){
@@ -73,8 +73,9 @@ void loop(){
         beepMode = INCREASING; //Initial state of the beep application
       }
       else{
-        int tempCentigrade = MFS.getLM35Data(); // get centigrade in 1/10 of degree.
-        MFS.write((float)tempCentigrade / 10, 1);  // display temp to 1 decimal place.
+        float tempCentigrade = MFS.getDS18B20Data();
+        Serial.println("Temp: " + String(tempCentigrade));
+        MFS.write(tempCentigrade, 1);  // display temp to 1 decimal place.
       }
   }
 

@@ -1,3 +1,9 @@
+/*
+ * Multi-function shield library by Kashif Baig
+ * Updated to add DS18B20 support by Nattachart Tamkittikhun
+ * 1 Nov 2019
+ */
+
 #include "MultiFuncShield.h"
 
 #define BUTTON_SAMPLE_INTERVAL_SCALE  20
@@ -35,6 +41,11 @@ byte sonarDataIndex = 0;
 
 int lm35Data[8];
 byte lm35DataIndex = 0;
+
+// DS18B20 specific variables
+
+float ds18b20Data[8];
+byte ds18b20DataIndex = 0;
 
 // Misc methods and functions.
 void isrWrapper ();
@@ -171,6 +182,79 @@ void MultiFuncShield::initLM35(byte level)
   for (int i=0; i < 8; i++)
   {
     lm35Data[i] = 0;
+  }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void MultiFuncShield::initDS18B20(byte level)
+{
+  ds18b20SmoothingLevel = level;
+  ds18b20DataIndex = 0;
+  
+  for (int i=0; i < 8; i++)
+  {
+    ds18b20Data[i] = 0;
+  }
+
+  oneWire = new OneWire(DS18B20_PIN);
+  ds18b20 = new DallasTemperature(oneWire);
+  ds18b20->begin();
+}
+
+float MultiFuncShield::getDS18B20Data(bool fahrenheit)
+{
+  float reading =0;
+  
+  ds18b20->requestTemperatures();
+  if(fahrenheit)
+    ds18b20Data [ds18b20DataIndex] = ds18b20->getTempFByIndex(0);
+  else
+    ds18b20Data [ds18b20DataIndex] = ds18b20->getTempCByIndex(0);
+
+  Serial.println(ds18b20Data [ds18b20DataIndex]);
+  
+  if (ds18b20SmoothingLevel == SMOOTHING_NONE)
+  {
+    reading  = ds18b20Data [ds18b20DataIndex];
+  }
+  else if (ds18b20SmoothingLevel == SMOOTHING_MODERATE)
+  {
+      ds18b20DataIndex++;
+      if (ds18b20DataIndex >= 4)
+      {
+        ds18b20DataIndex = 0;
+      }
+     
+      for (int i=0; i<4; i++)
+      {
+        reading = reading + ds18b20Data[i];
+      }
+  }
+  else
+  {
+      ds18b20DataIndex++;
+      if (ds18b20DataIndex >= 8)
+      {
+        ds18b20DataIndex = 0;
+      }
+
+      for (int i=0; i<8; i++)
+      {
+        reading = reading + ds18b20Data[i];
+      }
+  }
+
+  if (ds18b20SmoothingLevel == SMOOTHING_NONE)
+  {
+    return reading;
+  }
+  else if (ds18b20SmoothingLevel == SMOOTHING_MODERATE)
+  {
+    return reading / 4;
+  }
+  else
+  {
+    return reading / 8;
   }
 }
 

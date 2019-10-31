@@ -1,3 +1,18 @@
+/*
+ * An example of Multi-Function shield 
+ * with 3 switchable applications: 
+ * Temperature, Beeping, and Countdown
+ * 
+ * created by
+ * Nattachart Tamkittikhun
+ * 1 Nov 2019
+ */
+
+/*
+ * Note: 
+ * If using LM35, remove jumper J1.
+ * If using DS18B20, connect jumper J1.
+ */
 #define _USE_DS18B20 //Comment this out if using LM35
 
 #include "MultiFuncShield.h"

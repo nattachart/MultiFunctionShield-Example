@@ -49,6 +49,8 @@ byte minutes = 0;
 
 byte beepCount = 1;
 
+char txtBuffer[5];
+
 TimerOne t1;
 
 void setup(){
@@ -145,15 +147,19 @@ void loop(){
         switch(countDownMode){
           case COUNT_RESET: //count reset state
             MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
             // reset the timer
             tenths = 0;
             seconds = 0;
             minutes = 0;
-            MFS.write(minutes*100 + seconds);
+            sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+            MFS.write(txtBuffer);
             countDownMode = COUNTING_STOPPED; //After finishing resetting all values, transition to the stop state
             break;
           //--------------------------------------------------- 
           case COUNT_BEEP: //count beep state
+            MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
             //sound the alarm
             MFS.beep(50, 50, 3);  // beep 3 times, 500 milliseconds on / 500 off
             countDownMode = COUNTING_STOPPED; //After time passed, finishing the beep, transition to the stop state
@@ -161,7 +167,8 @@ void loop(){
           //--------------------------------------------------- 
           case COUNTING: //counting state
             MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
-            if(btn == BUTTON_2_LONG_PRESSED){
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = COUNTING_STOPPED;
             }
             else{
@@ -178,14 +185,17 @@ void loop(){
                    // timer has reached 0, transition to the count beep state
                    countDownMode = COUNT_BEEP;
                  }
-                 MFS.write(minutes*100 + seconds);
+                 sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+                 MFS.write(txtBuffer);
                }
-               delay(1000);
+               delay(100);
             }
             break;
           //---------------------------------------------------
           case COUNTING_STOPPED: //counting stop state
             MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(LED_2 | LED_3, ON);
             if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
               // start the timer
               countDownMode = COUNTING;
@@ -194,15 +204,16 @@ void loop(){
               countDownMode = UP_S;
               MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
               MFS.blinkDisplay(DIGIT_4, ON);
-              seconds = seconds + 1;
-              if(seconds >= 60){
-                seconds = 0;
-              }
-              MFS.write(minutes*100 + seconds);
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case UP_S: //1 second increment state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(INC_LED, ON);
+            MFS.blinkLeds(INC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
               //countDownMode = UP_S; //this can be omitted because it stays at the same state
               MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
@@ -211,177 +222,250 @@ void loop(){
               if(seconds >= 60){
                 seconds = 0;
               }
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
               countDownMode = UP_10S;
-              seconds = seconds + 10;
-              if(seconds >= 60){
-                seconds = 0;
-              }
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_3, ON);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = DOWN_S;
-              if(seconds > 0)
-                seconds = seconds - 1;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_4, ON);
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case UP_10S: //10 seconds increment state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(INC_LED, ON);
+            MFS.blinkLeds(INC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
               countDownMode = UP_S;
-              seconds = seconds + 1;
-              if(seconds >= 60){
-                seconds = 0;
-              }
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_4, ON);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_3, ON);
               seconds = seconds + 10;
               if(seconds >= 60){
                 seconds = 0;
               }
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = DOWN_S;
-              if(seconds > 0)
-                seconds = seconds - 1;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_4, ON);
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case DOWN_S: //1 second decrement state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(DEC_LED, ON);
+            MFS.blinkLeds(DEC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_4, ON);
               //countDownMode = DOWN_S;
               if(seconds > 0)
                 seconds = seconds - 1;
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
               countDownMode = DOWN_10S;
-              if(seconds >= 10)
-                seconds = seconds - 10;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_3, ON);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = UP_M;
-              minutes = minutes + 1;
-              if(minutes >= 60){
-                minutes = 0;
-              }
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case DOWN_10S: //10 seconds decrement state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(DEC_LED, ON);
+            MFS.blinkLeds(DEC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
               countDownMode = DOWN_S;
-              if(seconds > 0)
-                seconds = seconds - 1;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_4, ON);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
               //countDownMode = DOWN_10S;
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_3, ON);
               if(seconds >= 10)
                 seconds = seconds - 10;
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = UP_M;
-              minutes = minutes + 1;
-              if(minutes >= 60){
-                minutes = 0;
-              }
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case UP_M: //1 minute increment state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(INC_LED, ON);
+            MFS.blinkLeds(INC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
               //countDownMode = UP_M;
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
               minutes = minutes + 1;
               if(minutes >= 60){
                 minutes = 0;
               }
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
               countDownMode = UP_10M;
-              minutes = minutes + 10;
-              if(minutes >= 60){
-                minutes = 0;
-              }
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_1, ON);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = DOWN_M;
-              if(minutes > 0)
-                minutes = minutes - 1;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case UP_10M: //10 minutes increment state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(INC_LED, ON);
+            MFS.blinkLeds(INC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
               countDownMode = UP_M;
-              minutes = minutes + 1;
-              if(minutes >= 60){
-                minutes = 0;
-              }
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
               //countDownMode = UP_10M;
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_1, ON);
               minutes = minutes + 10;
               if(minutes >= 60){
                 minutes = 0;
               }
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = DOWN_M;
-              if(minutes > 0)
-              minutes = minutes - 1;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case DOWN_M: //1 minute decrement state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(DEC_LED, ON);
+            MFS.blinkLeds(DEC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
               //countDownMode = DOWN_M;
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
               if(minutes > 0)
                 minutes = minutes - 1;
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
               countDownMode = DOWN_10M;
-              if(minutes >= 10)
-                minutes = minutes - 10;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_1, ON);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = COUNTING_STOPPED;
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
           //---------------------------------------------------
           case DOWN_10M: //10 minutes decrement state
+            MFS.writeLeds(LED_1 | LED_2 | LED_3 | LED_4, OFF);
+            MFS.writeLeds(DEC_LED, ON);
+            MFS.blinkLeds(DEC_LED, ON);
             if(btn == BUTTON_3_SHORT_RELEASE){
               countDownMode = DOWN_M;
-              if(minutes > 0)
-                minutes = minutes - 1;
-              MFS.write(minutes*100 + seconds);
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_2, ON);
             }
             else if(btn == BUTTON_3_LONG_RELEASE){
               //countDownMode = DOWN_10M;
+              MFS.blinkDisplay(DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4, OFF);
+              MFS.blinkDisplay(DIGIT_1, ON);
               if(minutes >= 10)
                 minutes = minutes - 10;
-              MFS.write(minutes*100 + seconds);
+              sprintf(txtBuffer, "%04d", minutes*100 + seconds);
+              MFS.write(txtBuffer);
             }
             else if(btn == BUTTON_2_SHORT_RELEASE){
               countDownMode = COUNTING_STOPPED;
+            }
+            else if (btn == BUTTON_2_LONG_PRESSED && seconds + minutes > 0){
+              // start the timer
+              countDownMode = COUNTING;
+            }
+            else if(btn == BUTTON_1_LONG_PRESSED){
+              countDownMode = COUNT_RESET;
             }
             break;
         }
